@@ -1,8 +1,8 @@
-# Go AI Coder - Makefile
+# CloudyMcCodeFace - Makefile
 # Professional build and deployment system
 
 # Variables
-APP_NAME := go-ai-coder
+APP_NAME := cloudy-mc-codeface
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "v1.0.0")
 BUILD_TIME := $(shell date -u '+%Y-%m-%d_%H:%M:%S')
 GO_VERSION := $(shell go version | awk '{print $$3}')
@@ -108,37 +108,37 @@ uninstall:
 desktop-entry:
 	@echo "🖥️  Creating desktop entry..."
 	@mkdir -p ~/.local/share/applications
-	@echo "[Desktop Entry]" > ~/.local/share/applications/go-ai-coder.desktop
-	@echo "Version=1.0" >> ~/.local/share/applications/go-ai-coder.desktop
-	@echo "Type=Application" >> ~/.local/share/applications/go-ai-coder.desktop
-	@echo "Name=Go AI Coder" >> ~/.local/share/applications/go-ai-coder.desktop
-	@echo "Comment=AI-Powered Coding Assistant" >> ~/.local/share/applications/go-ai-coder.desktop
-	@echo "Exec=/usr/local/bin/go-ai-coder" >> ~/.local/share/applications/go-ai-coder.desktop
-	@echo "Icon=terminal" >> ~/.local/share/applications/go-ai-coder.desktop
-	@echo "Terminal=true" >> ~/.local/share/applications/go-ai-coder.desktop
-	@echo "Categories=Development;IDE;" >> ~/.local/share/applications/go-ai-coder.desktop
-	@echo "Keywords=AI;Coding;Go;Development;" >> ~/.local/share/applications/go-ai-coder.desktop
-	@echo "StartupNotify=true" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "[Desktop Entry]" > ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "Version=1.0" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "Type=Application" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "Name=CloudyMcCodeFace" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "Comment=AI-Powered Coding Assistant" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "Exec=/usr/local/bin/cloudy-mc-codeface" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "Icon=terminal" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "Terminal=true" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "Categories=Development;IDE;" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "Keywords=AI;Coding;Go;Development;" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
+	@echo "StartupNotify=true" >> ~/.local/share/applications/cloudy-mc-codeface.desktop
 	@echo "✅ Desktop entry created"
 
 # Create systemd service (for background operation)
 .PHONY: service
 service:
 	@echo "⚙️  Creating systemd service..."
-	@echo "[Unit]" | sudo tee /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "Description=Go AI Coder Service" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "After=network.target" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "[Service]" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "Type=simple" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "User=$(USER)" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "WorkingDirectory=$(HOME)/.go-ai-coder" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "ExecStart=/usr/local/bin/go-ai-coder --daemon" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "Restart=always" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "RestartSec=5" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "[Install]" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
-	@echo "WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "[Unit]" | sudo tee /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "Description=CloudyMcCodeFace Service" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "After=network.target" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "[Service]" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "Type=simple" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "User=$(USER)" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "WorkingDirectory=$(HOME)/.cloudy-mc-codeface" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "ExecStart=/usr/local/bin/cloudy-mc-codeface --daemon" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "Restart=always" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "RestartSec=5" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "[Install]" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
+	@echo "WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/cloudy-mc-codeface.service > /dev/null
 	@sudo systemctl daemon-reload
 	@echo "✅ Systemd service created"
 
@@ -186,7 +186,7 @@ docker:
 # Show help
 .PHONY: help
 help:
-	@echo "Go AI Coder - Available targets:"
+	@echo "CloudyMcCodeFace - Available targets:"
 	@echo ""
 	@echo "  build        - Build the application"
 	@echo "  build-all    - Build for multiple platforms"

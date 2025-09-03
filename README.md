@@ -1,13 +1,13 @@
-# 🚀 Go AI Coder - Enterprise AI Coding Assistant
+# ☁️ CloudyMcCodeFace - Enterprise AI Coding Assistant
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-blue.svg)](https://golang.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![AI Powered](https://img.shields.io/badge/AI-Powered-purple.svg)](https://ollama.ai)
-[![GitHub Stars](https://img.shields.io/github/stars/booze/go-ai-coder.svg)](https://github.com/booze/go-ai-coder)
+[![GitHub Stars](https://img.shields.io/github/stars/booze/CloudyMcCodeFace.svg)](https://github.com/booze/CloudyMcCodeFace)
 
 > **The Ultimate AI-Powered Coding Assistant for Go Developers**
 
-Go AI Coder is a sophisticated, enterprise-grade AI coding assistant that combines the power of local AI models with GitHub integration, web scraping, and intelligent code analysis. Built with Go and powered by Ollama, it provides a secure, private, and highly customizable coding experience.
+CloudyMcCodeFace is a sophisticated, enterprise-grade AI coding assistant that combines the power of local AI models with GitHub integration, web scraping, and intelligent code analysis. Built with Go and powered by Ollama, it provides a secure, private, and highly customizable coding experience.
 
 ## ✨ Features
 
@@ -52,36 +52,36 @@ Go AI Coder is a sophisticated, enterprise-grade AI coding assistant that combin
 
 ```bash
 # Clone the repository
-git clone https://github.com/booze/go-ai-coder.git
-cd go-ai-coder
+git clone https://github.com/booze/CloudyMcCodeFace.git
+cd CloudyMcCodeFace
 
 # Install dependencies
 go mod tidy
 
 # Build the application
-go build -o go-ai-coder cmd/main.go
+go build -o cloudy-mc-codeface cmd/main.go
 
 # Install to your PATH (optional)
-sudo cp go-ai-coder /usr/local/bin/
+sudo cp cloudy-mc-codeface /usr/local/bin/
 ```
 
 ### Basic Usage
 
 ```bash
 # Start with default settings
-go-ai-coder
+cloudy-mc-codeface
 
 # Use custom model
-go-ai-coder --model codellama:13b --tokens 4000
+cloudy-mc-codeface --model codellama:13b --tokens 4000
 
 # Use cloud AI with fallback
-go-ai-coder --cloud --cloud-url "https://your-service.com" --fallback
+cloudy-mc-codeface --cloud --cloud-url "https://your-service.com" --fallback
 
 # Enable verbose mode
-go-ai-coder --verbose
+cloudy-mc-codeface --verbose
 
 # Show help
-go-ai-coder --help
+cloudy-mc-codeface --help
 ```
 
 ## ☁️ Cloud AI Deployment
@@ -132,7 +132,7 @@ export VERBOSE="false"
 
 #### Command Line Flags
 ```bash
-go-ai-coder \
+cloudy-mc-codeface \
   --model llama3.2:3b \
   --tokens 2000 \
   --temp 0.7 \
@@ -210,7 +210,7 @@ You: go resources
 
 ### Project Structure
 ```
-go-ai-coder/
+CloudyMcCodeFace/
 ├── cmd/                    # Main application
 ├── internal/               # Internal packages
 │   ├── config/            # Configuration management
@@ -234,8 +234,8 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ### Development Setup
 ```bash
 # Fork and clone the repository
-git clone https://github.com/your-username/go-ai-coder.git
-cd go-ai-coder
+git clone https://github.com/your-username/CloudyMcCodeFace.git
+cd CloudyMcCodeFace
 
 # Install development dependencies
 go mod download
@@ -244,7 +244,7 @@ go mod download
 go test ./...
 
 # Build for development
-go build -o go-ai-coder cmd/main.go
+go build -o cloudy-mc-codeface cmd/main.go
 ```
 
 ## 📄 License
@@ -288,12 +288,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - **Documentation** - [Full Documentation](docs/)
-- **Issues** - [GitHub Issues](https://github.com/booze/go-ai-coder/issues)
-- **Discussions** - [GitHub Discussions](https://github.com/booze/go-ai-coder/discussions)
-- **Email** - [Contact Support](mailto:support@go-ai-coder.dev)
+- **Issues** - [GitHub Issues](https://github.com/booze/CloudyMcCodeFace/issues)
+- **Discussions** - [GitHub Discussions](https://github.com/booze/CloudyMcCodeFace/discussions)
+- **Email** - [Contact Support](mailto:support@cloudymccodeface.dev)
 
 ---
 
-**Made with ❤️ by the Go AI Coder team**
+**Made with ❤️ by the CloudyMcCodeFace team**
 
 *Empowering developers with AI-driven coding assistance*

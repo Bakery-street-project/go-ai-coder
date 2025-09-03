@@ -20,6 +20,19 @@ import (
 	"github.com/openai/openai-go/option"
 )
 
+// AI Client interface for both local and cloud AI
+type AIClient interface{}
+
+// Helper function to get OpenAI client from AIClient
+func getOpenAIClient(client AIClient) *openai.Client {
+	if openaiClient, ok := client.(*openai.Client); ok {
+		return openaiClient
+	}
+	// For cloud AI clients, we'll need to implement a different approach
+	// For now, return nil and handle in the calling functions
+	return nil
+}
+
 // GitHub API structures
 type GitHubRepo struct {
 	ID          int    `json:"id"`
@@ -171,8 +184,8 @@ func main() {
 	}
 
 	// Display startup information
-	fmt.Println("🤖 GitHub Enterprise AI Coding Agent")
-	fmt.Println("====================================")
+	fmt.Println("☁️ CloudyMcCodeFace - Enterprise AI Coding Agent")
+	fmt.Println("================================================")
 	fmt.Printf("Model: %s | Tokens: %d | Temp: %.1f\n", config.Model, config.MaxTokens, config.Temperature)
 	fmt.Printf("Ollama: %s | Cache: %t | AutoSave: %t\n", config.OllamaURL, config.CacheEnabled, config.AutoSave)
 	fmt.Println("")
@@ -184,7 +197,7 @@ func main() {
 	showHelp()
 
 	// Start interactive session
-	startInteractiveSession(client, config)
+	startInteractiveSession(aiClient, config)
 }
 
 func showHelp() {
@@ -212,7 +225,7 @@ func showHelp() {
 	fmt.Println("")
 }
 
-func startInteractiveSession(client openai.Client, config *Config) {
+func startInteractiveSession(client AIClient, config *Config) {
 	scanner := bufio.NewScanner(os.Stdin)
 	conversationHistory := []string{}
 
@@ -296,7 +309,7 @@ func maskToken(token string) string {
 	return token[:4] + "***" + token[len(token)-4:]
 }
 
-func handleGitHubCommand(client openai.Client, userInput string, config *Config) {
+func handleGitHubCommand(client AIClient, userInput string, config *Config) {
 	parts := strings.Fields(userInput)
 	if len(parts) < 2 {
 		fmt.Println("❌ Invalid GitHub command. Use: github <command>")
@@ -420,7 +433,7 @@ func handleGitHubCommand(client openai.Client, userInput string, config *Config)
 	}
 }
 
-func handleReadCommand(client openai.Client, userInput string, config *Config) {
+func handleReadCommand(client AIClient, userInput string, config *Config) {
 	filePath := strings.TrimSpace(strings.TrimPrefix(userInput, "read "))
 	filePath = strings.TrimSpace(strings.TrimPrefix(filePath, "Read "))
 	content, err := readFileOrFolder(filePath)
@@ -438,7 +451,7 @@ func handleReadCommand(client openai.Client, userInput string, config *Config) {
 	fmt.Printf("AI: %s\n\n", response)
 }
 
-func handleListCommand(client openai.Client, userInput string, config *Config) {
+func handleListCommand(client AIClient, userInput string, config *Config) {
 	dirPath := strings.TrimSpace(strings.TrimPrefix(userInput, "list "))
 	dirPath = strings.TrimSpace(strings.TrimPrefix(dirPath, "List "))
 	content, err := listDirectory(dirPath)
@@ -456,7 +469,7 @@ func handleListCommand(client openai.Client, userInput string, config *Config) {
 	fmt.Printf("AI: %s\n\n", response)
 }
 
-func handleGoResourcesCommand(client openai.Client, config *Config) {
+func handleGoResourcesCommand(client AIClient, config *Config) {
 	goResources := `
 🚀 Curated Go Learning Resources
 ================================
@@ -507,7 +520,7 @@ Would you like me to search GitHub for any specific Go topics or help you get st
 	fmt.Printf("AI Recommendations:\n%s\n\n", response)
 }
 
-func handleAICommand(client openai.Client, userInput string, config *Config) {
+func handleAICommand(client AIClient, userInput string, config *Config) {
 	parts := strings.Fields(userInput)
 	if len(parts) < 2 {
 		fmt.Println("❌ Invalid AI command. Use: ai <command>")
@@ -538,7 +551,7 @@ func handleAICommand(client openai.Client, userInput string, config *Config) {
 	}
 }
 
-func handleAILearnCommand(client openai.Client, config *Config) {
+func handleAILearnCommand(client AIClient, config *Config) {
 	fmt.Println("🧠 AI Learning Mode: Comprehensive Go Ecosystem Research")
 	fmt.Println("========================================================")
 	
@@ -612,7 +625,7 @@ func handleAILearnCommand(client openai.Client, config *Config) {
 	fmt.Printf("📁 Learning data saved to: %s/\n", learningDir)
 }
 
-func handleAIResearchCommand(client openai.Client, topic string, config *Config) {
+func handleAIResearchCommand(client AIClient, topic string, config *Config) {
 	fmt.Printf("🔍 AI Research Mode: %s\n", topic)
 	fmt.Println("================================")
 	
@@ -648,7 +661,7 @@ func handleAIResearchCommand(client openai.Client, topic string, config *Config)
 	fmt.Printf("🔍 Research Analysis:\n%s\n\n", response)
 }
 
-func handleAIScrapeCommand(client openai.Client, url string, config *Config) {
+func handleAIScrapeCommand(client AIClient, url string, config *Config) {
 	fmt.Printf("🕷️  AI Scraping: %s\n", url)
 	fmt.Println("================================")
 	
@@ -1071,9 +1084,14 @@ func getResearchUrls(topic string) []string {
 }
 
 // Enhanced message functions
-func sendMessageWithConfig(client openai.Client, message string, config *Config) (string, error) {
+func sendMessageWithConfig(client AIClient, message string, config *Config) (string, error) {
 	if config.Verbose {
 		fmt.Printf("[DEBUG] Sending message: %s\n", message)
+	}
+
+	openaiClient := getOpenAIClient(client)
+	if openaiClient == nil {
+		return "", fmt.Errorf("unsupported AI client type")
 	}
 
 	ctx := context.Background()
@@ -1094,7 +1112,7 @@ func sendMessageWithConfig(client openai.Client, message string, config *Config)
 	}
 
 	// Send request to Ollama
-	resp, err := client.Chat.Completions.New(ctx, req)
+	resp, err := openaiClient.Chat.Completions.New(ctx, req)
 	if err != nil {
 		return "", fmt.Errorf("failed to create chat completion: %w", err)
 	}
@@ -1111,7 +1129,12 @@ func sendMessageWithConfig(client openai.Client, message string, config *Config)
 	return resp.Choices[0].Message.Content, nil
 }
 
-func sendMessageWithContext(client openai.Client, message string, history []string, config *Config) (string, error) {
+func sendMessageWithContext(client AIClient, message string, history []string, config *Config) (string, error) {
+	openaiClient := getOpenAIClient(client)
+	if openaiClient == nil {
+		return "", fmt.Errorf("unsupported AI client type")
+	}
+
 	// Build context from conversation history
 	var messages []openai.ChatCompletionMessageParamUnion
 	
@@ -1151,7 +1174,7 @@ func sendMessageWithContext(client openai.Client, message string, history []stri
 	}
 
 	// Send request to Ollama
-	resp, err := client.Chat.Completions.New(ctx, req)
+	resp, err := openaiClient.Chat.Completions.New(ctx, req)
 	if err != nil {
 		return "", fmt.Errorf("failed to create chat completion: %w", err)
 	}
@@ -1193,7 +1216,12 @@ func saveConversation(history []string, config *Config) {
 }
 
 // Existing functions from read_simple.go
-func sendMessage(client openai.Client, message string, verbose bool) (string, error) {
+func sendMessage(client AIClient, message string, verbose bool) (string, error) {
+	openaiClient := getOpenAIClient(client)
+	if openaiClient == nil {
+		return "", fmt.Errorf("unsupported AI client type")
+	}
+
 	if verbose {
 		fmt.Printf("[DEBUG] Sending message: %s\n", message)
 	}
@@ -1216,7 +1244,7 @@ func sendMessage(client openai.Client, message string, verbose bool) (string, er
 	}
 
 	// Send request to Ollama
-	resp, err := client.Chat.Completions.New(ctx, req)
+	resp, err := openaiClient.Chat.Completions.New(ctx, req)
 	if err != nil {
 		return "", fmt.Errorf("failed to create chat completion: %w", err)
 	}

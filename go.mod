@@ -1,4 +1,4 @@
-module github.com/BoozeLee/go-ai-coder
+module github.com/BoozeLee/CloudyMcCodeFace
 
 go 1.21
 
