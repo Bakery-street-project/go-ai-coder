@@ -168,6 +168,38 @@ security:
 	@echo "🔒 Running security scan..."
 	@gosec ./...
 
+# Docker security scan
+.PHONY: docker-security
+docker-security:
+	@echo "🔒 Running Docker security scan..."
+	@docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+		aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL \
+		$(APP_NAME):$(VERSION)
+	@docker run --rm -v $(PWD):/workspace \
+		aquasec/trivy config --exit-code 1 --severity HIGH,CRITICAL \
+		/workspace
+
+# Build secure Docker image
+.PHONY: docker-secure
+docker-secure:
+	@echo "🔒 Building secure Docker image..."
+	@docker build \
+		--build-arg BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
+		--build-arg VCS_REF=$(shell git rev-parse --short HEAD) \
+		--build-arg VERSION=$(VERSION) \
+		--no-cache \
+		-t $(APP_NAME):$(VERSION) \
+		-t $(APP_NAME):latest \
+		.
+	@echo "✅ Secure Docker image built"
+
+# Deploy securely
+.PHONY: deploy-secure
+deploy-secure: docker-secure docker-security
+	@echo "🚀 Deploying securely..."
+	@docker-compose --profile security up -d
+	@echo "✅ Secure deployment complete"
+
 # Generate documentation
 .PHONY: docs
 docs:
@@ -201,6 +233,9 @@ help:
 	@echo "  lint         - Lint the code"
 	@echo "  fmt          - Format the code"
 	@echo "  security     - Run security scan"
+	@echo "  docker-security - Run Docker security scan"
+	@echo "  docker-secure - Build secure Docker image"
+	@echo "  deploy-secure - Deploy securely with security scan"
 	@echo "  docs         - Generate documentation"
 	@echo "  docker       - Build Docker image"
 	@echo "  release      - Create release package"
