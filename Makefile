@@ -108,41 +108,37 @@ uninstall:
 desktop-entry:
 	@echo "🖥️  Creating desktop entry..."
 	@mkdir -p ~/.local/share/applications
-	@cat > ~/.local/share/applications/go-ai-coder.desktop << 'EOF'
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=Go AI Coder
-Comment=AI-Powered Coding Assistant
-Exec=/usr/local/bin/go-ai-coder
-Icon=terminal
-Terminal=true
-Categories=Development;IDE;
-Keywords=AI;Coding;Go;Development;
-StartupNotify=true
-EOF
+	@echo "[Desktop Entry]" > ~/.local/share/applications/go-ai-coder.desktop
+	@echo "Version=1.0" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "Type=Application" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "Name=Go AI Coder" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "Comment=AI-Powered Coding Assistant" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "Exec=/usr/local/bin/go-ai-coder" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "Icon=terminal" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "Terminal=true" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "Categories=Development;IDE;" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "Keywords=AI;Coding;Go;Development;" >> ~/.local/share/applications/go-ai-coder.desktop
+	@echo "StartupNotify=true" >> ~/.local/share/applications/go-ai-coder.desktop
 	@echo "✅ Desktop entry created"
 
 # Create systemd service (for background operation)
 .PHONY: service
 service:
 	@echo "⚙️  Creating systemd service..."
-	@sudo tee /etc/systemd/system/go-ai-coder.service > /dev/null << 'EOF'
-[Unit]
-Description=Go AI Coder Service
-After=network.target
-
-[Service]
-Type=simple
-User=$(USER)
-WorkingDirectory=$(HOME)/.go-ai-coder
-ExecStart=/usr/local/bin/go-ai-coder --daemon
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
+	@echo "[Unit]" | sudo tee /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "Description=Go AI Coder Service" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "After=network.target" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "[Service]" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "Type=simple" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "User=$(USER)" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "WorkingDirectory=$(HOME)/.go-ai-coder" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "ExecStart=/usr/local/bin/go-ai-coder --daemon" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "Restart=always" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "RestartSec=5" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "[Install]" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
+	@echo "WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/go-ai-coder.service > /dev/null
 	@sudo systemctl daemon-reload
 	@echo "✅ Systemd service created"
 
