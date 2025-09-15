@@ -27,16 +27,16 @@ func (sm *SecurityManager) SanitizeInput(input string) string {
 	// Remove potentially dangerous characters
 	dangerous := []string{"<", ">", "\"", "'", "&", ";", "|", "`", "$", "(", ")", "{", "}"}
 	sanitized := input
-	
+
 	for _, char := range dangerous {
 		sanitized = strings.ReplaceAll(sanitized, char, "")
 	}
-	
+
 	// Limit length
 	if len(sanitized) > 1000 {
 		sanitized = sanitized[:1000]
 	}
-	
+
 	return strings.TrimSpace(sanitized)
 }
 
@@ -45,12 +45,12 @@ func (sm *SecurityManager) ValidateURL(url string) error {
 	if url == "" {
 		return fmt.Errorf("URL cannot be empty")
 	}
-	
+
 	// Only allow HTTP/HTTPS
 	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
 		return fmt.Errorf("URL must use HTTP or HTTPS protocol")
 	}
-	
+
 	// Block potentially dangerous domains
 	dangerousDomains := []string{
 		"localhost",
@@ -58,13 +58,13 @@ func (sm *SecurityManager) ValidateURL(url string) error {
 		"0.0.0.0",
 		"::1",
 	}
-	
+
 	for _, domain := range dangerousDomains {
 		if strings.Contains(url, domain) {
 			return fmt.Errorf("URL contains potentially dangerous domain: %s", domain)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -83,25 +83,25 @@ func (sm *SecurityManager) SaveSecureContent(content, filename string) error {
 	if filename == "" {
 		filename = "content"
 	}
-	
+
 	// Ensure filename is safe
 	if strings.Contains(filename, "..") || strings.Contains(filename, "/") {
 		return fmt.Errorf("invalid filename")
 	}
-	
+
 	// Limit content size
 	if len(content) > 1024*1024 { // 1MB limit
 		return fmt.Errorf("content too large")
 	}
-	
+
 	// Create secure path
 	securePath := filepath.Join(sm.dataDir, "secure", filename)
-	
+
 	// Ensure directory exists
 	if err := os.MkdirAll(filepath.Dir(securePath), 0755); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
-	
+
 	// Save content
 	return os.WriteFile(securePath, []byte(content), 0644)
 }
@@ -117,13 +117,13 @@ func (sm *SecurityManager) ValidateGitHubToken(token string) error {
 	if token == "" {
 		return fmt.Errorf("GitHub token cannot be empty")
 	}
-	
+
 	// GitHub tokens are typically 40 characters for classic tokens
 	// or start with ghp_ for fine-grained tokens
 	if len(token) < 20 {
 		return fmt.Errorf("GitHub token appears to be too short")
 	}
-	
+
 	return nil
 }
 
@@ -133,7 +133,7 @@ func (sm *SecurityManager) CleanupOldFiles() error {
 	if _, err := os.Stat(tempDir); os.IsNotExist(err) {
 		return nil
 	}
-	
+
 	// Remove files older than 7 days
 	// This is a simplified version - in production you'd want more sophisticated cleanup
 	return os.RemoveAll(tempDir)

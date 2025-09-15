@@ -13,24 +13,24 @@ import (
 // Config holds all configuration for the application
 type Config struct {
 	// AI Configuration
-	Model         string  `json:"model"`
-	MaxTokens     int     `json:"max_tokens"`
-	Temperature   float64 `json:"temperature"`
-	OllamaURL     string  `json:"ollama_url"`
-	
+	Model       string  `json:"model"`
+	MaxTokens   int     `json:"max_tokens"`
+	Temperature float64 `json:"temperature"`
+	OllamaURL   string  `json:"ollama_url"`
+
 	// GitHub Configuration
-	GitHubToken   string  `json:"-"` // Never log or expose this
-	
+	GitHubToken string `json:"-"` // Never log or expose this
+
 	// Application Configuration
-	LearningDir   string  `json:"learning_dir"`
-	CacheEnabled  bool    `json:"cache_enabled"`
-	AutoSave      bool    `json:"auto_save"`
-	Verbose       bool    `json:"verbose"`
-	
+	LearningDir  string `json:"learning_dir"`
+	CacheEnabled bool   `json:"cache_enabled"`
+	AutoSave     bool   `json:"auto_save"`
+	Verbose      bool   `json:"verbose"`
+
 	// Security Configuration
-	SessionID     string  `json:"session_id"`
-	DataDir       string  `json:"data_dir"`
-	LogLevel      string  `json:"log_level"`
+	SessionID string `json:"session_id"`
+	DataDir   string `json:"data_dir"`
+	LogLevel  string `json:"log_level"`
 }
 
 // LoadConfig loads configuration from environment and command line
@@ -48,24 +48,24 @@ func LoadConfig() (*Config, error) {
 		DataDir:      getDataDir(),
 		LogLevel:     getEnv("LOG_LEVEL", "info"),
 	}
-	
+
 	// Generate secure session ID
 	sessionID, err := generateSessionID()
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate session ID: %w", err)
 	}
 	config.SessionID = sessionID
-	
+
 	// Ensure data directory exists
 	if err := os.MkdirAll(config.DataDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create data directory: %w", err)
 	}
-	
+
 	// Ensure learning directory exists
 	if err := os.MkdirAll(config.LearningDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create learning directory: %w", err)
 	}
-	
+
 	return config, nil
 }
 

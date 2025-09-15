@@ -4,16 +4,16 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
-	"regexp"
-	"path/filepath"
-	"flag"
 
 	"github.com/joho/godotenv"
 	"github.com/openai/openai-go"
@@ -71,7 +71,7 @@ type GitHubPullRequest struct {
 	} `json:"user"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
-	Head     struct {
+	Head      struct {
 		Ref string `json:"ref"`
 	} `json:"head"`
 	Base struct {
@@ -94,15 +94,15 @@ type GitHubSearchResult struct {
 
 // Configuration structure
 type Config struct {
-	Verbose         bool
-	Model           string
-	MaxTokens       int
-	Temperature     float64
-	OllamaURL       string
-	GitHubToken     string
-	LearningDir     string
-	CacheEnabled    bool
-	AutoSave        bool
+	Verbose      bool
+	Model        string
+	MaxTokens    int
+	Temperature  float64
+	OllamaURL    string
+	GitHubToken  string
+	LearningDir  string
+	CacheEnabled bool
+	AutoSave     bool
 	// Cloud AI Configuration
 	UseCloudAI      bool
 	CloudAIURL      string
@@ -125,13 +125,13 @@ func loadConfig() *Config {
 	learningDir := flag.String("learning", "ai_learning", "Directory for AI learning data")
 	cacheEnabled := flag.Bool("cache", true, "Enable response caching")
 	autoSave := flag.Bool("autosave", true, "Auto-save conversations")
-	
+
 	// Cloud AI flags
 	useCloudAI := flag.Bool("cloud", false, "Use cloud AI service")
 	cloudAIURL := flag.String("cloud-url", "", "Cloud AI service URL")
 	cloudAPIKey := flag.String("cloud-key", "", "Cloud AI API key")
 	fallbackToLocal := flag.Bool("fallback", true, "Fallback to local AI if cloud fails")
-	
+
 	flag.Parse()
 
 	config := &Config{
@@ -161,10 +161,10 @@ func loadConfig() *Config {
 
 func main() {
 	config := loadConfig()
-	
+
 	// Create AI client (cloud or local)
 	var aiClient interface{}
-	
+
 	if config.UseCloudAI && config.CloudAIURL != "" {
 		// Use cloud AI with fallback
 		aiClient = NewCloudAIClient(
@@ -189,10 +189,10 @@ func main() {
 	fmt.Printf("Model: %s | Tokens: %d | Temp: %.1f\n", config.Model, config.MaxTokens, config.Temperature)
 	fmt.Printf("Ollama: %s | Cache: %t | AutoSave: %t\n", config.OllamaURL, config.CacheEnabled, config.AutoSave)
 	fmt.Println("")
-	
+
 	// Create learning directory
 	os.MkdirAll(config.LearningDir, 0755)
-	
+
 	// Display help
 	showHelp()
 
@@ -329,7 +329,7 @@ func handleGitHubCommand(client AIClient, userInput string, config *Config) {
 			fmt.Printf("❌ Error fetching repositories: %v\n", err)
 			return
 		}
-		
+
 		// Send repo data to AI for analysis
 		repoData := formatReposForAI(repos)
 		response, err := sendMessageWithConfig(client, fmt.Sprintf("Here are my GitHub repositories:\n\n%s\n\nPlease analyze my repository portfolio and provide insights about my coding patterns, technologies used, and suggestions for improvement.", repoData), config)
@@ -363,7 +363,7 @@ func handleGitHubCommand(client AIClient, userInput string, config *Config) {
 			}
 			return
 		}
-		
+
 		// Send search results to AI
 		searchData := formatSearchResultsForAI(results)
 		response, err := sendMessageWithConfig(client, fmt.Sprintf("GitHub search results for '%s':\n\n%s\n\nPlease analyze these repositories and recommend the most relevant ones for my needs.", query, searchData), config)
@@ -384,7 +384,7 @@ func handleGitHubCommand(client AIClient, userInput string, config *Config) {
 			fmt.Printf("❌ Error fetching issues: %v\n", err)
 			return
 		}
-		
+
 		// Send issues to AI
 		issuesData := formatIssuesForAI(issues)
 		response, err := sendMessageWithConfig(client, fmt.Sprintf("Issues for repository %s:\n\n%s\n\nPlease analyze these issues and provide insights about the project's health, priority issues, and suggestions for resolution.", repo, issuesData), config)
@@ -405,7 +405,7 @@ func handleGitHubCommand(client AIClient, userInput string, config *Config) {
 			fmt.Printf("❌ Error fetching pull requests: %v\n", err)
 			return
 		}
-		
+
 		// Send PRs to AI
 		prsData := formatPullRequestsForAI(prs)
 		response, err := sendMessageWithConfig(client, fmt.Sprintf("Pull requests for repository %s:\n\n%s\n\nPlease analyze these pull requests and provide insights about the development activity, code quality, and collaboration patterns.", repo, prsData), config)
@@ -441,7 +441,7 @@ func handleReadCommand(client AIClient, userInput string, config *Config) {
 		fmt.Printf("Error reading file/folder: %v\n", err)
 		return
 	}
-	
+
 	// Send file content to AI for analysis
 	response, err := sendMessageWithConfig(client, fmt.Sprintf("Here is the content of %s:\n\n%s\n\nPlease analyze this and provide insights.", filePath, content), config)
 	if err != nil {
@@ -459,9 +459,9 @@ func handleListCommand(client AIClient, userInput string, config *Config) {
 		fmt.Printf("Error listing directory: %v\n", err)
 		return
 	}
-	
-			// Send directory listing to AI
-		response, err := sendMessageWithConfig(client, fmt.Sprintf("Here is the directory listing of %s:\n\n%s\n\nPlease analyze this directory structure and provide insights.", dirPath, content), config)
+
+	// Send directory listing to AI
+	response, err := sendMessageWithConfig(client, fmt.Sprintf("Here is the directory listing of %s:\n\n%s\n\nPlease analyze this directory structure and provide insights.", dirPath, content), config)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -515,7 +515,7 @@ Would you like me to search GitHub for any specific Go topics or help you get st
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	
+
 	fmt.Printf("📚 %s\n\n", goResources)
 	fmt.Printf("AI Recommendations:\n%s\n\n", response)
 }
@@ -554,11 +554,11 @@ func handleAICommand(client AIClient, userInput string, config *Config) {
 func handleAILearnCommand(client AIClient, config *Config) {
 	fmt.Println("🧠 AI Learning Mode: Comprehensive Go Ecosystem Research")
 	fmt.Println("========================================================")
-	
+
 	// Create learning directory
 	learningDir := "ai_learning"
 	os.MkdirAll(learningDir, 0755)
-	
+
 	// Define learning targets with correct URLs
 	learningTargets := []struct {
 		name        string
@@ -577,14 +577,14 @@ func handleAILearnCommand(client AIClient, config *Config) {
 		{"Viper Config", "https://github.com/spf13/viper", "Configuration management", "tools"},
 		{"Go Reddit", "https://www.reddit.com/r/golang/", "Go community discussions", "community"},
 	}
-	
+
 	var allContent strings.Builder
 	allContent.WriteString("AI Learning Report: Go Ecosystem Research\n")
 	allContent.WriteString("==========================================\n\n")
-	
+
 	for i, target := range learningTargets {
 		fmt.Printf("📚 [%d/%d] Learning from: %s\n", i+1, len(learningTargets), target.name)
-		
+
 		// Scrape content with retry logic
 		content, err := scrapeWebContentWithRetry(target.url, 3)
 		if err != nil {
@@ -596,31 +596,31 @@ func handleAILearnCommand(client AIClient, config *Config) {
 			allContent.WriteString(fmt.Sprintf("Error: %v\n\n", err))
 			continue
 		}
-		
+
 		// Save to file
 		filename := filepath.Join(learningDir, fmt.Sprintf("%s_%s.txt", target.category, strings.ReplaceAll(target.name, " ", "_")))
 		err = os.WriteFile(filename, []byte(content), 0644)
 		if err != nil {
 			fmt.Printf("⚠️  Failed to save %s: %v\n", filename, err)
 		}
-		
+
 		// Add to summary
 		allContent.WriteString(fmt.Sprintf("## %s (%s)\n", target.name, target.category))
 		allContent.WriteString(fmt.Sprintf("URL: %s\n", target.url))
 		allContent.WriteString(fmt.Sprintf("Description: %s\n", target.description))
 		allContent.WriteString(fmt.Sprintf("Content Preview: %s\n\n", truncateText(content, 500)))
-		
+
 		// Small delay to be respectful
 		time.Sleep(1 * time.Second)
 	}
-	
+
 	// Send all content to AI for analysis
 	response, err := sendMessageWithConfig(client, fmt.Sprintf("I've scraped and learned from the Go ecosystem. Here's what I found:\n\n%s\n\nPlease analyze this comprehensive Go learning data and provide insights about:\n1. Key learning priorities\n2. Hidden gems and niche libraries\n3. Best practices and patterns\n4. Learning roadmap recommendations\n5. Advanced topics to explore", allContent.String()), config)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	
+
 	fmt.Printf("🧠 AI Learning Analysis:\n%s\n\n", response)
 	fmt.Printf("📁 Learning data saved to: %s/\n", learningDir)
 }
@@ -628,56 +628,56 @@ func handleAILearnCommand(client AIClient, config *Config) {
 func handleAIResearchCommand(client AIClient, topic string, config *Config) {
 	fmt.Printf("🔍 AI Research Mode: %s\n", topic)
 	fmt.Println("================================")
-	
+
 	// Research URLs based on topic
 	researchUrls := getResearchUrls(topic)
-	
+
 	var researchContent strings.Builder
 	researchContent.WriteString(fmt.Sprintf("Research Report: %s\n", topic))
 	researchContent.WriteString("========================\n\n")
-	
+
 	for i, url := range researchUrls {
 		fmt.Printf("🔍 [%d/%d] Researching: %s\n", i+1, len(researchUrls), url)
-		
+
 		content, err := scrapeWebContent(url)
 		if err != nil {
 			fmt.Printf("⚠️  Failed to scrape %s: %v\n", url, err)
 			continue
 		}
-		
+
 		researchContent.WriteString(fmt.Sprintf("## Source: %s\n", url))
 		researchContent.WriteString(fmt.Sprintf("Content: %s\n\n", truncateText(content, 1000)))
-		
+
 		time.Sleep(1 * time.Second)
 	}
-	
+
 	// Send to AI for analysis
 	response, err := sendMessageWithConfig(client, fmt.Sprintf("I've researched '%s' from multiple sources. Here's what I found:\n\n%s\n\nPlease provide a comprehensive analysis and recommendations about this topic.", topic, researchContent.String()), config)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	
+
 	fmt.Printf("🔍 Research Analysis:\n%s\n\n", response)
 }
 
 func handleAIScrapeCommand(client AIClient, url string, config *Config) {
 	fmt.Printf("🕷️  AI Scraping: %s\n", url)
 	fmt.Println("================================")
-	
+
 	content, err := scrapeWebContent(url)
 	if err != nil {
 		fmt.Printf("❌ Failed to scrape URL: %v\n", err)
 		return
 	}
-	
+
 	// Send to AI for analysis
 	response, err := sendMessageWithConfig(client, fmt.Sprintf("I've scraped content from %s:\n\n%s\n\nPlease analyze this content and provide insights, key takeaways, and recommendations.", url, content), config)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	
+
 	fmt.Printf("🕷️  Scraped Content Analysis:\n%s\n\n", response)
 }
 
@@ -689,20 +689,20 @@ func getGitHubRepos(token string) ([]GitHubRepo, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	req.Header.Set("Authorization", "token "+token)
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
-	
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("GitHub API error: %s", resp.Status)
 	}
-	
+
 	var repos []GitHubRepo
 	err = json.NewDecoder(resp.Body).Decode(&repos)
 	return repos, err
@@ -712,18 +712,18 @@ func searchGitHubRepos(query string) (*GitHubSearchResult, error) {
 	// Remove timeout to prevent hanging
 	client := &http.Client{}
 	url := fmt.Sprintf("https://api.github.com/search/repositories?q=%s&sort=stars&order=desc&per_page=10", query)
-	
+
 	fmt.Printf("🔍 Searching GitHub for: %s...\n", query)
-	
+
 	// Simple request without retry logic for now
 	resp, err := client.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("GitHub API request failed: %v", err)
 	}
 	defer resp.Body.Close()
-	
+
 	fmt.Printf("📡 GitHub API response: %s\n", resp.Status)
-	
+
 	// Handle different HTTP status codes
 	if resp.StatusCode == 403 {
 		// Rate limit exceeded
@@ -733,7 +733,7 @@ func searchGitHubRepos(query string) (*GitHubSearchResult, error) {
 	} else if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("GitHub API error: %s", resp.Status)
 	}
-	
+
 	var result GitHubSearchResult
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	return &result, err
@@ -742,18 +742,18 @@ func searchGitHubRepos(query string) (*GitHubSearchResult, error) {
 func getGitHubIssues(repo string) ([]GitHubIssue, error) {
 	client := &http.Client{}
 	url := fmt.Sprintf("https://api.github.com/repos/%s/issues?state=all&per_page=20", repo)
-	
+
 	fmt.Printf("🐛 Fetching issues for %s...\n", repo)
 	resp, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("GitHub API error: %s", resp.Status)
 	}
-	
+
 	var issues []GitHubIssue
 	err = json.NewDecoder(resp.Body).Decode(&issues)
 	return issues, err
@@ -762,18 +762,18 @@ func getGitHubIssues(repo string) ([]GitHubIssue, error) {
 func getGitHubPullRequests(repo string) ([]GitHubPullRequest, error) {
 	client := &http.Client{}
 	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls?state=all&per_page=20", repo)
-	
+
 	fmt.Printf("🔄 Fetching pull requests for %s...\n", repo)
 	resp, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("GitHub API error: %s", resp.Status)
 	}
-	
+
 	var prs []GitHubPullRequest
 	err = json.NewDecoder(resp.Body).Decode(&prs)
 	return prs, err
@@ -792,7 +792,7 @@ func formatReposForAI(repos []GitHubRepo) string {
 	var result strings.Builder
 	result.WriteString("Repository Portfolio Analysis:\n")
 	result.WriteString("============================\n\n")
-	
+
 	for _, repo := range repos {
 		result.WriteString(fmt.Sprintf("📁 %s\n", repo.FullName))
 		result.WriteString(fmt.Sprintf("   Language: %s\n", repo.Language))
@@ -800,7 +800,7 @@ func formatReposForAI(repos []GitHubRepo) string {
 		result.WriteString(fmt.Sprintf("   Description: %s\n", repo.Description))
 		result.WriteString(fmt.Sprintf("   Updated: %s\n\n", repo.UpdatedAt))
 	}
-	
+
 	return result.String()
 }
 
@@ -808,7 +808,7 @@ func formatSearchResultsForAI(results *GitHubSearchResult) string {
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("Search Results (%d total):\n", results.TotalCount))
 	result.WriteString("==========================\n\n")
-	
+
 	for _, item := range results.Items {
 		result.WriteString(fmt.Sprintf("📁 %s\n", item.FullName))
 		result.WriteString(fmt.Sprintf("   Language: %s\n", item.Language))
@@ -816,7 +816,7 @@ func formatSearchResultsForAI(results *GitHubSearchResult) string {
 		result.WriteString(fmt.Sprintf("   Description: %s\n", item.Description))
 		result.WriteString(fmt.Sprintf("   Updated: %s\n\n", item.UpdatedAt))
 	}
-	
+
 	return result.String()
 }
 
@@ -824,7 +824,7 @@ func formatIssuesForAI(issues []GitHubIssue) string {
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("Issues (%d total):\n", len(issues)))
 	result.WriteString("==================\n\n")
-	
+
 	for _, issue := range issues {
 		result.WriteString(fmt.Sprintf("🔴 #%d: %s\n", issue.Number, issue.Title))
 		result.WriteString(fmt.Sprintf("   State: %s | Author: %s\n", issue.State, issue.User.Login))
@@ -838,7 +838,7 @@ func formatIssuesForAI(issues []GitHubIssue) string {
 		}
 		result.WriteString("\n")
 	}
-	
+
 	return result.String()
 }
 
@@ -846,7 +846,7 @@ func formatPullRequestsForAI(prs []GitHubPullRequest) string {
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("Pull Requests (%d total):\n", len(prs)))
 	result.WriteString("========================\n\n")
-	
+
 	for _, pr := range prs {
 		result.WriteString(fmt.Sprintf("🔄 #%d: %s\n", pr.Number, pr.Title))
 		result.WriteString(fmt.Sprintf("   State: %s | Author: %s\n", pr.State, pr.User.Login))
@@ -861,13 +861,13 @@ func formatPullRequestsForAI(prs []GitHubPullRequest) string {
 		}
 		result.WriteString("\n")
 	}
-	
+
 	return result.String()
 }
 
 func getCuratedSearchResults(query string) string {
 	queryLower := strings.ToLower(query)
-	
+
 	// Curated repositories based on common search terms
 	curatedRepos := map[string][]struct {
 		name        string
@@ -898,11 +898,11 @@ func getCuratedSearchResults(query string) string {
 			{"labstack/echo", "High performance, minimalist Go web framework", "Go", 30000, "https://github.com/labstack/echo"},
 		},
 	}
-	
+
 	var result strings.Builder
 	result.WriteString("Curated Search Results (GitHub API rate limited):\n")
 	result.WriteString("===============================================\n\n")
-	
+
 	// Find matching categories
 	var foundRepos []struct {
 		name        string
@@ -911,23 +911,23 @@ func getCuratedSearchResults(query string) string {
 		stars       int
 		url         string
 	}
-	
+
 	for category, repos := range curatedRepos {
 		if strings.Contains(queryLower, category) {
 			foundRepos = append(foundRepos, repos...)
 		}
 	}
-	
+
 	// If no specific category matches, show general Go repositories
 	if len(foundRepos) == 0 {
 		foundRepos = curatedRepos["golang"]
 	}
-	
+
 	// Limit to 5 results
 	if len(foundRepos) > 5 {
 		foundRepos = foundRepos[:5]
 	}
-	
+
 	for _, repo := range foundRepos {
 		result.WriteString(fmt.Sprintf("📁 %s\n", repo.name))
 		result.WriteString(fmt.Sprintf("   Language: %s\n", repo.language))
@@ -935,60 +935,60 @@ func getCuratedSearchResults(query string) string {
 		result.WriteString(fmt.Sprintf("   Description: %s\n", repo.description))
 		result.WriteString(fmt.Sprintf("   URL: %s\n\n", repo.url))
 	}
-	
+
 	return result.String()
 }
 
 // Web scraping and utility functions
 func scrapeWebContent(url string) (string, error) {
 	client := &http.Client{}
-	
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", err
 	}
-	
+
 	// Set user agent to avoid blocking
 	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-	
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return "", fmt.Errorf("HTTP %d: %s", resp.StatusCode, resp.Status)
 	}
-	
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
-	
+
 	// Basic HTML cleaning - remove tags and get text content
 	content := string(body)
 	content = cleanHTML(content)
-	
+
 	return content, nil
 }
 
 func scrapeWebContentWithRetry(url string, maxRetries int) (string, error) {
 	var lastErr error
-	
+
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		content, err := scrapeWebContent(url)
 		if err == nil {
 			return content, nil
 		}
-		
+
 		lastErr = err
 		if attempt < maxRetries {
 			fmt.Printf("⏳ Retry %d/%d for %s...\n", attempt, maxRetries, url)
 			time.Sleep(time.Duration(attempt) * time.Second)
 		}
 	}
-	
+
 	return "", fmt.Errorf("failed after %d attempts: %v", maxRetries, lastErr)
 }
 
@@ -996,22 +996,22 @@ func cleanHTML(html string) string {
 	// Remove script and style tags
 	re := regexp.MustCompile(`(?i)<(script|style)[^>]*>.*?</(script|style)>`)
 	html = re.ReplaceAllString(html, "")
-	
+
 	// Remove HTML tags
 	re = regexp.MustCompile(`<[^>]*>`)
 	html = re.ReplaceAllString(html, " ")
-	
+
 	// Clean up whitespace
 	re = regexp.MustCompile(`\s+`)
 	html = re.ReplaceAllString(html, " ")
-	
+
 	// Remove HTML entities
 	html = strings.ReplaceAll(html, "&nbsp;", " ")
 	html = strings.ReplaceAll(html, "&amp;", "&")
 	html = strings.ReplaceAll(html, "&lt;", "<")
 	html = strings.ReplaceAll(html, "&gt;", ">")
 	html = strings.ReplaceAll(html, "&quot;", "\"")
-	
+
 	return strings.TrimSpace(html)
 }
 
@@ -1024,12 +1024,12 @@ func truncateText(text string, maxLength int) string {
 
 func getResearchUrls(topic string) []string {
 	topicLower := strings.ToLower(topic)
-	
+
 	// Define research URLs based on topic
 	urls := []string{}
-	
+
 	if strings.Contains(topicLower, "machine learning") || strings.Contains(topicLower, "ml") {
-		urls = append(urls, 
+		urls = append(urls,
 			"https://github.com/gorgonia/gorgonia",
 			"https://github.com/go-skynet/go-llama.cpp",
 			"https://github.com/topics/machine-learning-go",
@@ -1037,7 +1037,7 @@ func getResearchUrls(topic string) []string {
 			"https://github.com/sjwhitworth/golearn",
 		)
 	}
-	
+
 	if strings.Contains(topicLower, "web") || strings.Contains(topicLower, "http") {
 		urls = append(urls,
 			"https://gin-gonic.com/",
@@ -1046,7 +1046,7 @@ func getResearchUrls(topic string) []string {
 			"https://github.com/valyala/fasthttp",
 		)
 	}
-	
+
 	if strings.Contains(topicLower, "database") || strings.Contains(topicLower, "sql") {
 		urls = append(urls,
 			"https://github.com/jmoiron/sqlx",
@@ -1054,7 +1054,7 @@ func getResearchUrls(topic string) []string {
 			"https://github.com/go-pg/pg",
 		)
 	}
-	
+
 	if strings.Contains(topicLower, "cli") || strings.Contains(topicLower, "command") {
 		urls = append(urls,
 			"https://cobra.dev/",
@@ -1062,7 +1062,7 @@ func getResearchUrls(topic string) []string {
 			"https://github.com/urfave/cli",
 		)
 	}
-	
+
 	if strings.Contains(topicLower, "testing") {
 		urls = append(urls,
 			"https://golang.org/pkg/testing/",
@@ -1070,7 +1070,7 @@ func getResearchUrls(topic string) []string {
 			"https://github.com/golang/mock",
 		)
 	}
-	
+
 	// Default research URLs if no specific topic matches
 	if len(urls) == 0 {
 		urls = append(urls,
@@ -1079,7 +1079,7 @@ func getResearchUrls(topic string) []string {
 			"https://gobyexample.com/",
 		)
 	}
-	
+
 	return urls
 }
 
@@ -1102,9 +1102,9 @@ func sendMessageWithConfig(client AIClient, message string, config *Config) (str
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage(message),
 		},
-		MaxTokens: openai.Int(int64(config.MaxTokens)),
+		MaxTokens:   openai.Int(int64(config.MaxTokens)),
 		Temperature: openai.Float(config.Temperature),
-		TopP: openai.Float(0.9),
+		TopP:        openai.Float(0.9),
 	}
 
 	if config.Verbose {
@@ -1137,16 +1137,16 @@ func sendMessageWithContext(client AIClient, message string, history []string, c
 
 	// Build context from conversation history
 	var messages []openai.ChatCompletionMessageParamUnion
-	
+
 	// Add system message for context
 	messages = append(messages, openai.SystemMessage("You are a helpful AI coding assistant. You have access to GitHub repositories, can analyze code, and help with Go programming. Keep responses concise and helpful."))
-	
+
 	// Add recent conversation history (last 10 messages)
 	start := len(history) - 10
 	if start < 0 {
 		start = 0
 	}
-	
+
 	for i := start; i < len(history); i++ {
 		if i%2 == 0 {
 			messages = append(messages, openai.UserMessage(history[i]))
@@ -1154,7 +1154,7 @@ func sendMessageWithContext(client AIClient, message string, history []string, c
 			messages = append(messages, openai.AssistantMessage(history[i]))
 		}
 	}
-	
+
 	// Add current message
 	messages = append(messages, openai.UserMessage(message))
 
@@ -1166,11 +1166,11 @@ func sendMessageWithContext(client AIClient, message string, history []string, c
 
 	// Create chat completion request with context
 	req := openai.ChatCompletionNewParams{
-		Model: config.Model,
-		Messages: messages,
-		MaxTokens: openai.Int(int64(config.MaxTokens)),
+		Model:       config.Model,
+		Messages:    messages,
+		MaxTokens:   openai.Int(int64(config.MaxTokens)),
 		Temperature: openai.Float(config.Temperature),
-		TopP: openai.Float(0.9),
+		TopP:        openai.Float(0.9),
 	}
 
 	// Send request to Ollama
@@ -1191,14 +1191,14 @@ func saveConversation(history []string, config *Config) {
 	if len(history) == 0 {
 		return
 	}
-	
+
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
 	filename := filepath.Join(config.LearningDir, fmt.Sprintf("conversation_%s.txt", timestamp))
-	
+
 	var content strings.Builder
 	content.WriteString(fmt.Sprintf("Conversation saved at: %s\n", time.Now().Format("2006-01-02 15:04:05")))
 	content.WriteString("==========================================\n\n")
-	
+
 	for i, msg := range history {
 		if i%2 == 0 {
 			content.WriteString(fmt.Sprintf("You: %s\n\n", msg))
@@ -1206,7 +1206,7 @@ func saveConversation(history []string, config *Config) {
 			content.WriteString(fmt.Sprintf("AI: %s\n\n", msg))
 		}
 	}
-	
+
 	err := os.WriteFile(filename, []byte(content.String()), 0644)
 	if err != nil {
 		if config.Verbose {
@@ -1234,9 +1234,9 @@ func sendMessage(client AIClient, message string, verbose bool) (string, error) 
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage(message),
 		},
-		MaxTokens: openai.Int(2000),
+		MaxTokens:   openai.Int(2000),
 		Temperature: openai.Float(0.7), // Balanced for coding tasks
-		TopP: openai.Float(0.9),
+		TopP:        openai.Float(0.9),
 	}
 
 	if verbose {
@@ -1267,7 +1267,7 @@ func readFileOrFolder(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	if info.IsDir() {
 		// It's a directory, read all files in it
 		return readDirectoryContents(path)
@@ -1296,12 +1296,12 @@ func readDirectoryContents(dirPath string) (string, error) {
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("Directory: %s\n", dirPath))
 	result.WriteString("=" + strings.Repeat("=", len(dirPath)) + "\n\n")
-	
+
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
 		return "", err
 	}
-	
+
 	for _, entry := range entries {
 		entryPath := dirPath + "/" + entry.Name()
 		if entry.IsDir() {
@@ -1319,7 +1319,7 @@ func readDirectoryContents(dirPath string) (string, error) {
 			}
 		}
 	}
-	
+
 	return result.String(), nil
 }
 
@@ -1327,25 +1327,25 @@ func listDirectory(dirPath string) (string, error) {
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("Directory listing: %s\n", dirPath))
 	result.WriteString("=" + strings.Repeat("=", len(dirPath)) + "\n\n")
-	
+
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
 		return "", err
 	}
-	
+
 	for _, entry := range entries {
 		info, err := entry.Info()
 		if err != nil {
 			result.WriteString(fmt.Sprintf("❓ %s (error getting info)\n", entry.Name()))
 			continue
 		}
-		
+
 		if entry.IsDir() {
 			result.WriteString(fmt.Sprintf("📁 %s/ (directory, %d bytes)\n", entry.Name(), info.Size()))
 		} else {
 			result.WriteString(fmt.Sprintf("📄 %s (%d bytes, modified: %s)\n", entry.Name(), info.Size(), info.ModTime().Format("2006-01-02 15:04:05")))
 		}
 	}
-	
+
 	return result.String(), nil
 }
