@@ -22,3 +22,23 @@ Each entry tracks one research question, context, and evolving answers.
 ### Final Answer (when ready)
 
 - TODO
+
+---
+
+## Q20260217184539 — Can we auto-route PRs to security vs completion agents based on labels and file paths?
+
+- Opened: 2026-02-17T18:45:39Z
+- Status: open
+- Tags: TODO
+
+### Context
+
+- TODO: add context, links, code pointers.
+
+### Notes / Partial Answers
+
+- TODO: first notes.
+
+### Final Answer (when ready)
+
+- TODO
