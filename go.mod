@@ -1,4 +1,4 @@
-module github.com/BoozeLee/CloudyMcCodeFace
+module github.com/Bakery-street-project/go-ai-coder
 
 go 1.24.0
 
