@@ -2,7 +2,7 @@
 # Security-first, privacy-focused containerization
 
 # Stage 1: Build the application
-FROM golang:1.21-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 # Security: Use specific version and verify checksums
 ARG GO_VERSION=1.21
