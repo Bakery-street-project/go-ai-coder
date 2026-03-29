@@ -1,2 +1,20 @@
-# Default code owners for Bakery-street-project/go-ai-coder
-*       @BoozeLee
+# CODEOWNERS
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global ownership — all files require review from BoozeLee
+* @BoozeLee
+
+# Go source
+*.go @BoozeLee
+go.mod @BoozeLee
+go.sum @BoozeLee
+
+# Security-critical — require explicit review
+SECURITY.md @BoozeLee
+.github/workflows/ @BoozeLee
+.goreleaser.yml @BoozeLee
+
+# Configuration
+configs/ @BoozeLee
+internal/config/ @BoozeLee
+internal/security/ @BoozeLee
