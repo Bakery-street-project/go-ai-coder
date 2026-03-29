@@ -1,95 +1,137 @@
-# Binaries for programs and plugins
+# ════════════════════════════════════════════════════════
+# Bakertreet Labs — Master .gitignore
+# Protects against accidental secret and artifact commits
+# ════════════════════════════════════════════════════════
+
+# ─── SECRETS (NEVER COMMIT) ──────────────────────────────
+.env
+.env.*
+!.env.example
+!.env.template
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.pub
+id_rsa
+id_ed25519
+*.secret
+secrets.json
+secrets.yaml
+secrets.yml
+credentials.json
+service-account*.json
+*_credentials.json
+*_service_account.json
+.netrc
+.htpasswd
+kubeconfig
+*.kubeconfig
+.aws/credentials
+.aws/config
+gcloud/application_default_credentials.json
+
+# ─── API KEYS & TOKENS ───────────────────────────────────
+*.token
+*.apikey
+api_keys.*
+config/secrets.*
+
+# ─── DETECT-SECRETS BASELINE ─────────────────────────────
+# Keep this file — it tracks known false positives
+# .secrets.baseline  ← do NOT ignore this one
+
+# ─── BUILD ARTIFACTS ─────────────────────────────────────
+dist/
+build/
+out/
+target/
 *.exe
-*.exe~
 *.dll
 *.so
 *.dylib
-go-ai-coder
-go-ai-coder.exe
-
-# Test binary, built with `go test -c`
-*.test
-
-# Test and validation binaries
-*-test
-*-new
-*-working
-validation-*
-test-*
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# Go workspace file
-go.work
-
-# Build directories
-build/
-dist/
+*.wasm
 bin/
+obj/
 
-# IDE files
-.vscode/
+# ─── Go ──────────────────────────────────────────────────
+vendor/
+*.test
+*.out
+go.work.sum
+
+# ─── Python ──────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+ENV/
+*.egg-info/
+dist/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ─── Node / JS ───────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.yarn/
+
+# ─── Flutter / Dart ──────────────────────────────────────
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+build/
+pubspec.lock   # commit this for apps, ignore for packages
+
+# ─── Docker ──────────────────────────────────────────────
+.docker/
+docker-compose.override.yml
+
+# ─── IDE / OS ────────────────────────────────────────────
 .idea/
+.vscode/settings.json
+.vscode/launch.json
 *.swp
 *.swo
-*~
-
-# OS generated files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
+desktop.ini
+*.sublime-workspace
 
-# Environment files
-.env
-.env.local
-.env.production
-.env.staging
-
-# Log files
+# ─── LOGS & TEMP ─────────────────────────────────────────
 *.log
 logs/
-
-# Data directories
-ai_learning/
-data/
-cache/
-
-# Temporary files
 tmp/
 temp/
-
-# Security sensitive files
-*.key
-*.pem
-*.crt
-*.p12
-*.pfx
-
-# Configuration files with sensitive data
-config.json
-secrets.json
-
-# Backup files
+*.tmp
 *.bak
-*.backup
-*.old
+*.orig
 
-# Coverage reports
-coverage.out
-coverage.html
-
-# Profiling files
-*.prof
-*.pprof
-
-# Documentation build
-docs/_build/
-site/
+# ─── AI / ML ─────────────────────────────────────────────
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.pkl
+*.h5
+*.hdf5
+wandb/
+mlruns/
+*.safetensors
