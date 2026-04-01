@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 )
@@ -368,4 +369,41 @@ func (c *CloudAIClient) GetStats() map[string]interface{} {
 	}
 	
 	return stats
+}
+
+// Example usage
+func main() {
+	// Load environment variables
+	godotenv.Load()
+
+	// Create hybrid AI client
+	client := NewCloudAIClient(
+		"https://your-cloud-ai-service.com", // Cloud AI URL
+		"http://localhost:11434/v1",         // Local Ollama URL
+		"your-api-key",                      // Cloud API key
+		true,                                // Enable fallback mode
+	)
+
+	// Check health
+	health := client.HealthCheck()
+	fmt.Printf("Health Status: %+v\n", health)
+
+	// Send a message
+	response, err := client.SendMessage(
+		"Explain Go's interface{} type and when to use it",
+		"llama3.2:3b",
+		1000,
+		0.7,
+	)
+	
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("AI Response: %s\n", response)
+
+	// Get statistics
+	stats := client.GetStats()
+	fmt.Printf("Client Stats: %+v\n", stats)
 }
