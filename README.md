@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Bakerstreet Labs](https://img.shields.io/badge/Bakerstreet-Labs-black.svg)](https://github.com/Bakery-street-project)
 
-> Production-grade autonomous AI coding agent built in Go.
+> CLI toolkit for AI-assisted coding — local LLM chat, GitHub repo analysis, and code manipulation.
 
 **Watermark:** `BAKERSTREET-LABS-2025`
 
@@ -12,12 +12,23 @@
 
 ## Overview
 
-go-ai-coder is the code synthesis engine of the Bakerstreet Labs ecosystem. It receives code generation tasks via `repository_dispatch`, produces high-quality Go/Python/TypeScript code, and submits PRs back to the triggering repository.
+go-ai-coder is a collection of standalone Go CLI tools that connect to local (Ollama) or cloud-based LLMs for coding assistance. Each tool is a single-file program you can run independently.
 
-```
-[Task Request] → go-ai-coder → [Generated Code] → [PR]
-  (dispatch)      (LLM + Go)      (tested)
-```
+---
+
+## Tools
+
+| Tool | Run | What it does |
+|------|-----|-------------|
+| `chat` | `go run chat.go` | Interactive chat with a local Ollama model |
+| `github_ai_agent` | `go run github_ai_agent.go` | GitHub-aware AI agent — list repos, search issues/PRs, clone repos, scrape URLs, analyze code |
+| `bash_tool` | `go run bash_tool.go` | Execute bash commands and capture output |
+| `edit_tool` | `go run edit_tool.go` | Read and write files on disk |
+| `code_search_tool` | `go run code_search_tool.go` | Search codebases using ripgrep |
+| `cloud-ai` | `go run cmd/cloud-ai/main.go` | Cloud AI inference via NVIDIA NIM-compatible API |
+| `list_files` | `go run list_files.go` | List directory contents |
+| `read` | `go run read.go` | Read file contents |
+| `read_simple` | `go run read_simple.go` | Minimal file reader |
 
 ---
 
@@ -27,51 +38,36 @@ go-ai-coder is the code synthesis engine of the Bakerstreet Labs ecosystem. It r
 git clone https://github.com/Bakery-street-project/go-ai-coder.git
 cd go-ai-coder
 go mod download
-cp .env.example .env  # configure your API keys
-go run ./cmd/chat
+cp .env.example .env   # configure your API keys
+
+# Start a local AI chat (requires Ollama running)
+go run chat.go
+
+# Or launch the GitHub AI agent
+go run github_ai_agent.go
 ```
+
+Requires [Ollama](https://ollama.com) running locally with a model pulled (default: `llama3.2:3b`).
 
 ---
 
-## Project Structure
+## github_ai_agent Commands
 
-```
-go-ai-coder/
-├── cmd/               # Entry points (chat, bash_tool, edit_tool, etc.)
-│   ├── chat/          # Interactive AI coding session
-│   ├── bash_tool/     # Bash command execution tool
-│   ├── edit_tool/     # Code editing tool
-│   ├── github_ai_agent/  # GitHub-integrated AI agent
-│   └── ...
-├── internal/          # Internal packages
-│   ├── config/        # Configuration
-│   ├── license/       # License validation
-│   └── security/      # Security utilities
-├── scripts/           # Helper scripts
-└── .github/workflows/ # CI/CD pipelines
-```
-
----
-
-## Tools
+Once running, the GitHub AI agent supports these commands:
 
 | Command | Description |
 |---------|-------------|
-| `chat` | Interactive AI coding session with LLM backend |
-| `bash_tool` | Execute bash commands with AI supervision |
-| `edit_tool` | AI-powered code editing and refactoring |
-| `github_ai_agent` | GitHub event-driven code generation agent |
-| `cloud-ai` | Cloud-based AI inference interface |
-| `code_search_tool` | Semantic code search |
-| `list_files` | File tree listing utility |
-| `read` | File content reader |
-| `read_simple` | Minimal file reader |
-
----
-
-## Integration
-
-Receives `repository_dispatch` events from Bakerstreet Labs ecosystem agents and returns generated code as PRs or dispatch responses.
+| `/repos <org>` | List repositories for a GitHub organization |
+| `/search <query>` | Search GitHub repos |
+| `/issues <owner/repo>` | List open issues for a repo |
+| `/prs <owner/repo>` | List open pull requests |
+| `/clone <owner/repo>` | Clone a repo locally |
+| `/research <topic>` | AI-powered research on a topic |
+| `/scrape <url>` | Scrape and summarize a web page |
+| `/learn` | Browse AI-assisted Go learning resources |
+| `/read <path>` | Read a file from disk |
+| `/write <path>` | Write content to a file |
+| `/bash <command>` | Execute a bash command |
 
 ---
 
