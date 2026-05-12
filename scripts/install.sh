@@ -1,3 +1,4 @@
+# BAKERSTREET-LABS-2025 — Bakerstreet Labs
 #!/bin/bash
 
 # Go AI Coder - Secure Installation Script

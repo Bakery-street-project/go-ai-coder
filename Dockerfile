@@ -1,3 +1,4 @@
+# BAKERSTREET-LABS-2025 — Bakerstreet Labs
 # Multi-stage Docker build for CloudyMcCodeFace
 # Security-first, privacy-focused containerization
 
