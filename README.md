@@ -1,10 +1,10 @@
 # go-ai-coder
 
-[![Go](https://img.shields.io/badge/Go-1.21+-00ADD8.svg)](https://golang.org)
+[![Go](https://img.shields.io/badge/Go-1.24+-00ADD8.svg)](https://golang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Bakerstreet Labs](https://img.shields.io/badge/Bakerstreet-Labs-black.svg)](https://github.com/Bakery-street-project)
+[![Bakerstreet Labs](https://img.shields.io/badge/Bakerstreet-Lab-black.svg)](https://github.com/Bakery-street-project)
 
-> CLI toolkit for AI-assisted coding — local LLM chat, GitHub repo analysis, and code manipulation.
+> Claude-powered autonomous coding agent with a TUI — read/write files, run bash, search code, all from your terminal.
 
 **Watermark:** `BAKERSTREET-LABS-2025`
 
@@ -12,23 +12,38 @@
 
 ## Overview
 
-go-ai-coder is a collection of standalone Go CLI tools that connect to local (Ollama) or cloud-based LLMs for coding assistance. Each tool is a single-file program you can run independently.
+go-ai-coder is a collection of Go CLI tools for AI-assisted coding. The flagship is `cmd/agent` — a Claude Code-style TUI agent that uses Anthropic's tool-use API to autonomously read/write files, run commands, and search codebases. It also ships a GitHub-aware Ollama agent and an omarchy desktop launcher.
 
 ---
 
-## Tools
+## Agent TUI (Claude Code-style)
 
-| Tool | Run | What it does |
-|------|-----|-------------|
-| `chat` | `go run chat.go` | Interactive chat with a local Ollama model |
-| `github_ai_agent` | `go run github_ai_agent.go` | GitHub-aware AI agent — list repos, search issues/PRs, clone repos, scrape URLs, analyze code |
-| `bash_tool` | `go run bash_tool.go` | Execute bash commands and capture output |
-| `edit_tool` | `go run edit_tool.go` | Read and write files on disk |
-| `code_search_tool` | `go run code_search_tool.go` | Search codebases using ripgrep |
-| `cloud-ai` | `go run cmd/cloud-ai/main.go` | Cloud AI inference via NVIDIA NIM-compatible API |
-| `list_files` | `go run list_files.go` | List directory contents |
-| `read` | `go run read.go` | Read file contents |
-| `read_simple` | `go run read_simple.go` | Minimal file reader |
+```
+┌─────────────────────────────────────────────────────┐
+│ ⚡ go-ai-coder  claude-sonnet-4 · Ctrl+C to quit    │
+├─────────────────────────────────────────────────────┤
+│ ◆ Claude                                            │
+│   I'll read the file and fix the bug.               │
+│                                                     │
+│ ⚙ read_file                                         │
+│   package main...                                   │
+│                                                     │
+│ ◆ Claude                                            │
+│   Fixed. The issue was a nil pointer dereference.   │
+├─────────────────────────────────────────────────────┤
+│ ▶ fix the bug in main.go█                           │
+└─────────────────────────────────────────────────────┘
+```
+
+### Tools available to the agent
+
+| Tool | Description |
+|------|-------------|
+| `read_file` | Read any file from disk |
+| `write_file` | Write/create files |
+| `list_files` | List directory contents |
+| `bash` | Execute shell commands |
+| `search_code` | Grep across Go source files |
 
 ---
 
@@ -38,36 +53,113 @@ go-ai-coder is a collection of standalone Go CLI tools that connect to local (Ol
 git clone https://github.com/Bakery-street-project/go-ai-coder.git
 cd go-ai-coder
 go mod download
-cp .env.example .env   # configure your API keys
+cp .env.example .env
+# Add ANTHROPIC_API_KEY to .env
 
-# Start a local AI chat (requires Ollama running)
-go run chat.go
+# Launch the Claude agent TUI
+go run ./cmd/agent/
 
-# Or launch the GitHub AI agent
+# Or the GitHub/Ollama agent (requires Ollama running)
 go run github_ai_agent.go
 ```
 
-Requires [Ollama](https://ollama.com) running locally with a model pulled (default: `llama3.2:3b`).
+### Build binaries
+
+```bash
+go build -o go-ai-coder-agent ./cmd/agent/
+go build -o go-ai-coder-omarchy ./cmd/omarchy/
+go build -o go-ai-coder ./
+```
 
 ---
 
-## github_ai_agent Commands
+## GitHub Codespaces
 
-Once running, the GitHub AI agent supports these commands:
+Open instantly in a pre-configured dev environment:
 
-| Command | Description |
-|---------|-------------|
-| `/repos <org>` | List repositories for a GitHub organization |
-| `/search <query>` | Search GitHub repos |
-| `/issues <owner/repo>` | List open issues for a repo |
-| `/prs <owner/repo>` | List open pull requests |
-| `/clone <owner/repo>` | Clone a repo locally |
-| `/research <topic>` | AI-powered research on a topic |
-| `/scrape <url>` | Scrape and summarize a web page |
-| `/learn` | Browse AI-assisted Go learning resources |
-| `/read <path>` | Read a file from disk |
-| `/write <path>` | Write content to a file |
-| `/bash <command>` | Execute a bash command |
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Bakery-street-project/go-ai-coder)
+
+```bash
+# Inside the codespace
+go run ./cmd/agent/
+```
+
+---
+
+## omarchy Desktop App
+
+go-ai-coder ships as an **omarchy desktop app** — a TUI launcher that integrates with the [omarchy](https://github.com/basecamp/omarchy) desktop environment.
+
+### Launch
+
+```bash
+go run ./cmd/omarchy/
+# or
+go-ai-coder-omarchy
+```
+
+### omarchy Desktop App Entry
+
+```toml
+# ~/.config/omarchy/apps/go-ai-coder.toml
+name = "go-ai-coder"
+description = "Claude-powered AI coding agent"
+icon = "⚡"
+command = "go-ai-coder-omarchy"
+category = "development"
+```
+
+### App listing
+
+| App | Command | Description |
+|-----|---------|-------------|
+| ⚡ AI Coder Agent | `go-ai-coder-agent` | Claude-powered coding agent with tool use |
+| 🐙 GitHub AI Agent | `go-ai-coder` | GitHub integration with Ollama |
+| ☁️ Cloud AI Agent | `go-ai-coder-cloud` | Cloud-based AI agent |
+
+---
+
+## All Tools
+
+| Tool | Run | What it does |
+|------|-----|-------------|
+| `cmd/agent` | `go run ./cmd/agent/` | **Claude TUI agent** — tool use, file ops, bash |
+| `cmd/omarchy` | `go run ./cmd/omarchy/` | omarchy desktop launcher |
+| `github_ai_agent` | `go run github_ai_agent.go` | GitHub-aware Ollama agent |
+| `bash_tool` | `go run bash_tool.go` | Execute bash commands |
+| `edit_tool` | `go run edit_tool.go` | Read/write files |
+| `code_search_tool` | `go run code_search_tool.go` | Search codebases with ripgrep |
+| `cmd/cloud-ai` | `go run cmd/cloud-ai/main.go` | Cloud AI via NVIDIA NIM API |
+
+---
+
+## Configuration
+
+Copy `.env.example` to `.env` and set:
+
+```env
+ANTHROPIC_API_KEY=sk-ant-...   # for cmd/agent (Claude)
+GITHUB_TOKEN=ghp_...           # for GitHub features
+# AIMLAPI_API_KEY=...          # optional cloud AI
+```
+
+---
+
+## Architecture
+
+```
+go-ai-coder/
+├── cmd/
+│   ├── agent/main.go      # Claude TUI agent (bubbletea + anthropic-sdk-go)
+│   ├── omarchy/main.go    # omarchy desktop launcher
+│   └── cloud-ai/main.go   # cloud AI agent
+├── github_ai_agent.go     # GitHub + Ollama agent (main package)
+├── chat.go                # basic Ollama chat
+├── bash_tool.go           # bash execution tool
+├── edit_tool.go           # file edit tool
+├── code_search_tool.go    # code search tool
+└── .devcontainer/         # GitHub Codespaces config
+```
 
 ---
 
